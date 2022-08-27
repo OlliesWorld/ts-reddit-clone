@@ -1,8 +1,10 @@
 import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Box, Divider, Text, Input, Checkbox, Flex, Icon, Stack } from '@chakra-ui/react';
+import { doc } from 'firebase/firestore';
 import React from 'react';
 import { useState } from 'react';
 import { BsFillPersonFill, BsFillEyeFill } from 'react-icons/bs';
 import { HiLockClosed} from 'react-icons/hi';
+import { firestore } from '../../../firebase/clientApp';
 
 type CreateCommunityModalProps = {
     open: boolean;
@@ -14,6 +16,7 @@ const CreateCommunityModal:React.FC<CreateCommunityModalProps> = ({open, handleC
     const [charsRemaining, setCharsRemaining] = useState(21)
     const [communityType, setCommunityType] = useState("public");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if(event.target.value.length > 21) return;
@@ -32,6 +35,16 @@ const CreateCommunityModal:React.FC<CreateCommunityModalProps> = ({open, handleC
         if (name === communityType) return;
         setCommunityType(name);
       };
+
+      const handleCreateCommunity = async () => {
+        const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test(communityName) || communityName.length < 3) {
+            // setError( 'Community names must be between 3–21 characters, and can only contain letters, numbers, or underscores.')
+            return;
+        }
+
+        const communityDocRef = doc(firestore, 'communities', communityName )
+      }
 
       
     return (
@@ -71,6 +84,7 @@ const CreateCommunityModal:React.FC<CreateCommunityModalProps> = ({open, handleC
                 >
                     {charsRemaining} Characters remaining
                 </Text>
+                <Text fontSize="9pt" color="red" pr={1}>{error}</Text>
                 <Box mt={4} mb={4}>
                     <Text fontWeight={600} fontSize={15}>
                     Community Type
